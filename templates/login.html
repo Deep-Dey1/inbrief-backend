@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - InBrief Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #1976D2 0%, #BBDEFB 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            transform: translateY(0);
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .main-title {
+            color: #1976D2;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1.5px;
+        }
+        .subtitle {
+            color: #666;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .login-container input:focus {
+            outline: none;
+            border-color: #1976D2;
+            box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);
+        }
+        .login-container button {
+            background: #1976D2;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .login-container button:hover {
+            background: #1565C0;
+            transform: translateY(-2px);
+        }
+        .error {
+            color: #D32F2F;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .logo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #1976D2;
+        }
+        .logo-text {
+            color: #1976D2;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .logo-subtext {
+            font-size: 0.8rem;
+            color: #555;
+        }
+        @media (max-width: 400px) {
+            .login-container {
+                padding: 1.5rem;
+                max-width: 90%;
+            }
+            .main-title {
+                font-size: 1.8rem;
+            }
+            .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div>
+                <span class="logo-text">NAVITASYS</span><br>
+                <span class="logo-subtext">A TDK Group Company</span>
+            </div>
+            <div>
+                <span class="logo-text">CoE</span><br>
+                <span class="logo-subtext">Centre Of Excellence</span>
+            </div>
+        </div>
+        <h1 class="main-title">InBrief</h1>
+        <h2 class="subtitle">Admin Dashboard</h2>
+        <form method="POST" action="{{ url_for('login') }}">
+            <input type="text" name="employee_id" placeholder="Employee ID" required>
+            <input type="password" name="password" placeholder="Last 4 digits of phone number" required>
+            <button type="submit">Login</button>
+        </form>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html> 

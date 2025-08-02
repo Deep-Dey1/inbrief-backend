@@ -1,0 +1,73 @@
+2025-07-30 11:54:17,775 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.255.204:5000
+2025-07-30 11:54:17,776 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-07-30 11:54:17,788 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-07-30 11:54:18,607 - werkzeug - WARNING -  * Debugger is active!
+2025-07-30 11:54:18,613 - werkzeug - INFO -  * Debugger PIN: 640-884-389
+2025-07-30 11:55:06,547 - __main__ - INFO - Received verification request - Employee ID: 9025857, Phone last four: 7398
+2025-07-30 11:55:06,547 - __main__ - INFO - Making SAP API request to: https://api44.sapsf.com/odata/v2/EmpJob?$filter=userId eq '9025857'&$expand=employmentNav/personNav/phoneNav,employmentNav/personNav/personalInfoNav,departmentNav,locationNav&$select=userId,employmentNav/personNav/phoneNav/phoneNumber,employmentNav/personNav/personalInfoNav/firstName,employmentNav/personNav/personalInfoNav/lastName,departmentNav/name,locationNav/name&$format=json
+2025-07-30 11:55:07,244 - __main__ - INFO - Comparing phone numbers: 7398 == 7398
+2025-07-30 11:55:07,245 - __main__ - INFO - Verification successful for Piyush Tiwari
+2025-07-30 11:55:07,253 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:55:07] "GET /api/verify_employee HTTP/1.1" 200 -
+2025-07-30 11:55:07,473 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:55:07] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:56:03,046 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 11:56:03] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 11:56:03,054 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 11:56:03] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:56:07,002 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:56:07] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:56:07,390 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:56:07] "GET /static/uploads/6a7f062d-1ed9-4dd4-9cfc-f549e6a6c9a0_Image%201.jpg HTTP/1.1" 200 -
+2025-07-30 11:57:40,283 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 11:57:40] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 11:57:40,291 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 11:57:40] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:57:45,607 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:57:45] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:57:45,680 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:57:45] "GET /static/uploads/85422aff-9c29-4ea4-ba6e-2a206a48a87b_GMP.jpg HTTP/1.1" 200 -
+2025-07-30 11:58:34,054 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 11:58:34] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 11:58:34,060 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 11:58:34] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:58:36,837 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:58:36] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:58:36,903 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:58:36] "GET /static/uploads/a588d36e-2fbb-49f2-a77b-2bf68c6be456_Special%20Sick%20Leave.jpg HTTP/1.1" 200 -
+2025-07-30 11:59:28,119 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 11:59:28] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 11:59:28,124 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 11:59:28] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:59:30,785 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:59:30] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 11:59:30,847 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 11:59:30] "GET /static/uploads/03538d3a-c662-46d6-82d0-ce1e0675bfdd_Compassionate%20Leave.jpg HTTP/1.1" 200 -
+2025-07-30 12:00:05,268 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:00:05] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 12:00:05,273 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:00:05] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:00:08,608 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:00:08] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:00:08,724 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:00:08] "GET /static/uploads/7a8b5faa-ac07-4733-8a2b-e50da7166bc0_Privilege%20Leave.jpg HTTP/1.1" 200 -
+2025-07-30 12:00:33,698 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:00:33] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 12:00:33,705 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:00:33] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:00:34,922 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:00:34] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:00:35,052 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:00:35] "GET /static/uploads/c727af62-ff2b-4df6-ac5b-decd9f58c91c_Health%20Advisory.png HTTP/1.1" 200 -
+2025-07-30 12:00:42,061 - werkzeug - INFO - 192.168.255.204 - - [30/Jul/2025 12:00:42] "GET /static/uploads/c727af62-ff2b-4df6-ac5b-decd9f58c91c_Health%20Advisory.png HTTP/1.1" 200 -
+2025-07-30 12:00:54,762 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:00:54] "POST /api/news/edit/37e324a1-2c4c-4249-ab05-2ed8ea90b019 HTTP/1.1" 200 -
+2025-07-30 12:00:54,770 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:00:54] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:00:55,916 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:00:55] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:01:00,536 - werkzeug - INFO - 192.168.255.204 - - [30/Jul/2025 12:01:00] "[36mGET /static/uploads/c727af62-ff2b-4df6-ac5b-decd9f58c91c_Health%20Advisory.png HTTP/1.1[0m" 304 -
+2025-07-30 12:01:10,632 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:01:10] "POST /api/news/edit/37e324a1-2c4c-4249-ab05-2ed8ea90b019 HTTP/1.1" 200 -
+2025-07-30 12:01:10,640 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:01:10] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:01:13,458 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:01:13] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:01:56,392 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:01:56] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 12:01:56,397 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:01:56] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:01:57,969 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:01:57] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:01:58,047 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:01:58] "GET /static/uploads/28532767-fb64-47fb-bd13-459e4b2bd7ff_Compensatory%20Off.jpg HTTP/1.1" 200 -
+2025-07-30 12:02:47,055 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:02:47] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 12:02:47,061 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:02:47] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:02:48,579 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:02:48] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:02:48,665 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:02:48] "GET /static/uploads/34faf489-55a8-4a7e-a3b1-c9b283bd0383_IJP.jpg HTTP/1.1" 200 -
+2025-07-30 12:03:23,954 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:03:23] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 12:03:23,960 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:03:23] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:03:25,552 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:03:25] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:03:25,607 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:03:25] "GET /static/uploads/b4456759-3a31-4bba-a0ed-5f8e7747c20d_Image%202.jpg HTTP/1.1" 200 -
+2025-07-30 12:03:36,873 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:03:36] "[35m[1mPOST /api/news HTTP/1.1[0m" 201 -
+2025-07-30 12:03:36,879 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2025 12:03:36] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:03:38,207 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:03:38] "GET /api/news/all HTTP/1.1" 200 -
+2025-07-30 12:03:38,268 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:03:38] "GET /static/uploads/bc34bdec-6198-419e-9e88-a904c33e02c0_Image%203.jpg HTTP/1.1" 200 -
+2025-07-30 12:04:28,370 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:04:28] "GET /static/uploads/03538d3a-c662-46d6-82d0-ce1e0675bfdd_Compassionate%20Leave.jpg HTTP/1.1" 200 -
+2025-07-30 12:04:33,266 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:04:33] "GET /static/uploads/a588d36e-2fbb-49f2-a77b-2bf68c6be456_Special%20Sick%20Leave.jpg HTTP/1.1" 200 -
+2025-07-30 12:04:40,685 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:04:40] "GET /static/uploads/85422aff-9c29-4ea4-ba6e-2a206a48a87b_GMP.jpg HTTP/1.1" 200 -
+2025-07-30 12:04:50,685 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:04:50] "GET /static/uploads/6a7f062d-1ed9-4dd4-9cfc-f549e6a6c9a0_Image%201.jpg HTTP/1.1" 200 -
+2025-07-30 12:05:32,526 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:05:32] "GET /static/uploads/28532767-fb64-47fb-bd13-459e4b2bd7ff_Compensatory%20Off.jpg HTTP/1.1" 200 -
+2025-07-30 12:05:39,458 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:05:39] "GET /static/uploads/34faf489-55a8-4a7e-a3b1-c9b283bd0383_IJP.jpg HTTP/1.1" 200 -
+2025-07-30 12:05:44,779 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:05:44] "GET /static/uploads/b4456759-3a31-4bba-a0ed-5f8e7747c20d_Image%202.jpg HTTP/1.1" 200 -
+2025-07-30 12:05:48,986 - werkzeug - INFO - 192.168.255.41 - - [30/Jul/2025 12:05:48] "GET /static/uploads/bc34bdec-6198-419e-9e88-a904c33e02c0_Image%203.jpg HTTP/1.1" 200 -
+2025-07-30 13:32:45,810 - werkzeug - INFO -  * Detected change in 'C:\\Users\\ni00968\\projects\\inbreif_application\\version-12\\version-13\\version-12\\working\\INBREIF_BACKEND\\app.py', reloading
+2025-07-30 13:32:46,380 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2025-07-30 13:32:46,737 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
