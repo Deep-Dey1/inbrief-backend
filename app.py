@@ -71,6 +71,23 @@ def is_post_editable(post_date):
     post_time = datetime.strptime(post_date, '%Y-%m-%d %H:%M:%S')
     return datetime.now() - post_time <= timedelta(hours=2)
 
+def fallback_image_upload(images):
+    """Fallback image upload to local storage if Cloudinary fails"""
+    image_urls = []
+    for image in images:
+        if image and image.filename:
+            try:
+                filename = f"{uuid.uuid4()}_{image.filename}"
+                save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(save_path)
+                # Use Railway's domain for the URL
+                base_url = os.environ.get('RAILWAY_STATIC_URL', 'https://web-production-c427.up.railway.app')
+                image_urls.append(f'{base_url}/static/uploads/{filename}')
+                logger.info(f"Fallback upload successful: {filename}")
+            except Exception as e:
+                logger.error(f"Fallback upload failed for {image.filename}: {e}")
+    return image_urls
+
 # Mobile app endpoints - Authentication moved to Flutter app
 # This endpoint is removed as authentication now happens directly in Flutter
 
@@ -193,7 +210,7 @@ def get_all_news():
     clean_posts.sort(key=lambda x: x.get('date', ''), reverse=True)
     return jsonify(clean_posts)
 
-# Add a new post with Cloudinary image upload
+# Add a new post with Cloudinary image upload and better error handling
 @app.route('/api/news', methods=['POST'])
 @login_required
 def add_news():
@@ -202,6 +219,8 @@ def add_news():
     category = request.form.get('category')
     images = request.files.getlist('images')
     
+    logger.info(f"Creating new post: headline='{headline[:50]}...', images={len(images)}")
+    
     # Allow empty headline but require at least one of: headline, description, or image
     if not headline and not description and not images:
         return jsonify({'error': 'Post must have at least a headline, description, or image.'}), 400
@@ -209,15 +228,28 @@ def add_news():
     if category and category not in POST_CATEGORIES:
         return jsonify({'error': 'Invalid category'}), 400
         
-    # Upload images to Cloudinary
+    # Upload images to Cloudinary with better error handling
     image_data = []
+    upload_errors = []
+    
     if images:
-        uploaded_images = CloudinaryService.upload_multiple_images(images, folder="inbrief_posts")
-        for img in uploaded_images:
-            image_data.append({
-                'url': img['url'],
-                'public_id': img['public_id']
-            })
+        try:
+            logger.info(f"Starting upload of {len(images)} images to Cloudinary")
+            uploaded_images, failed_uploads = CloudinaryService.upload_multiple_images(images, folder="inbrief_posts")
+            
+            for img in uploaded_images:
+                image_data.append({
+                    'url': img['url'],
+                    'public_id': img['public_id']
+                })
+            
+            if failed_uploads:
+                upload_errors = [f"Failed to upload {f['filename']}: {f['error']}" for f in failed_uploads]
+                logger.warning(f"Some image uploads failed: {upload_errors}")
+                
+        except Exception as e:
+            logger.error(f"Critical error during image upload: {e}")
+            return jsonify({'error': f'Image upload failed: {str(e)}'}), 500
                 
     post_id = generate_post_id()
     date_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -233,6 +265,8 @@ def add_news():
     }
     news_posts.insert(0, news_item)
     
+    logger.info(f"Post created successfully: {post_id}")
+    
     # Return clean data for mobile app (without public_ids)
     clean_item = {
         'id': news_item['id'],
@@ -243,7 +277,11 @@ def add_news():
         'author': news_item['author']
     }
     
-    return jsonify({'success': True, 'item': clean_item}), 201
+    response_data = {'success': True, 'item': clean_item}
+    if upload_errors:
+        response_data['warnings'] = upload_errors
+    
+    return jsonify(response_data), 201
 
 # Edit a post by id with Cloudinary support
 @app.route('/api/news/edit/<post_id>', methods=['POST'])
