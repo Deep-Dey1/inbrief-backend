@@ -671,7 +671,7 @@
             if (hasImages && hasHeadline && hasDescription) {
                 imgH = Math.round(previewHeight * 0.5);
                 headlineH = Math.round(previewHeight * 0.12);
-                descH = Math.round(previewHeight * 0.18);
+                descH = Math.round(previewHeight * 0.25); // Increased for scrollable text
             } else if (hasImages && hasHeadline && !hasDescription) {
                 imgH = Math.round(previewHeight * 0.7);
                 headlineH = Math.round(previewHeight * 0.10);
@@ -683,7 +683,7 @@
             } else {
                 imgH = 0;
                 headlineH = hasHeadline ? Math.round(previewHeight * 0.12) : 0;
-                descH = hasDescription ? Math.round(previewHeight * 0.18) : 0;
+                descH = hasDescription ? Math.round(previewHeight * 0.35) : 0; // More space for text-only
             }
 
             return `
@@ -697,7 +697,16 @@
                 <!-- News Card -->
                 <div style="background: ${cardColor}; height: ${previewHeight - 44}px; display: flex; flex-direction: column;">
                     ${hasImages ? `
-                    <div style="height: ${imgH}px; background: url('${post.image_urls[0]}') center/cover; flex-shrink: 0;"></div>
+                    <div style="height: ${imgH}px; position: relative; flex-shrink: 0; overflow: hidden;">
+                        <img id="existingImg${mode}" src="${post.image_urls[0]}" style="width: 100%; height: 100%; object-fit: cover;">
+                        ${post.image_urls.length > 1 ? `
+                        <button id="prevExisting${mode}" style="position: absolute; top: 50%; left: 8px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 24px; height: 24px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">‹</button>
+                        <button id="nextExisting${mode}" style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 24px; height: 24px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">›</button>
+                        <div id="dotsExisting${mode}" style="position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;">
+                            ${post.image_urls.map((_, i) => `<span style="display: inline-block; width: 6px; height: 6px; margin: 0 2px; border-radius: 50%; background: ${i === 0 ? '#fff' : '#bbb'}; cursor: pointer;" onclick="showExistingImage${mode}(${i})"></span>`).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
                     ` : ''}
                     
                     ${hasHeadline ? `
@@ -709,8 +718,8 @@
                     ` : ''}
                     
                     ${hasDescription ? `
-                    <div style="height: ${descH}px; padding: 0 16px; flex-shrink: 0; overflow: hidden;">
-                        <div style="color: ${descColor}; font-size: 14px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: ${Math.floor(descH / 20)}; -webkit-box-orient: vertical; overflow: hidden;">
+                    <div style="height: ${descH}px; padding: 8px 16px; flex-shrink: 0; overflow-y: auto;">
+                        <div style="color: ${descColor}; font-size: 14px; line-height: 1.4;">
                             ${post.description}
                         </div>
                     </div>
@@ -742,6 +751,76 @@
 
         // Make the render function available globally for the buttons
         window.renderExistingPostPreview = renderExistingPostPreview;
+
+        // Add image navigation functions for existing post
+        window.showExistingImagelight = function(index) {
+            const img = document.getElementById('existingImglight');
+            const dots = document.querySelectorAll('#dotsExistinglight span');
+            if (img && post.image_urls[index]) {
+                img.src = post.image_urls[index];
+                dots.forEach((dot, i) => {
+                    dot.style.background = i === index ? '#fff' : '#bbb';
+                });
+            }
+        };
+
+        window.showExistingImagedark = function(index) {
+            const img = document.getElementById('existingImgdark');
+            const dots = document.querySelectorAll('#dotsExistingdark span');
+            if (img && post.image_urls[index]) {
+                img.src = post.image_urls[index];
+                dots.forEach((dot, i) => {
+                    dot.style.background = i === index ? '#fff' : '#bbb';
+                });
+            }
+        };
+
+        // Setup navigation after modal content is ready
+        setTimeout(() => {
+            let currentIndexLight = 0;
+            let currentIndexDark = 0;
+
+            const prevBtnLight = document.getElementById('prevExistinglight');
+            const nextBtnLight = document.getElementById('nextExistinglight');
+            const prevBtnDark = document.getElementById('prevExistingdark');
+            const nextBtnDark = document.getElementById('nextExistingdark');
+
+            if (prevBtnLight) {
+                prevBtnLight.onclick = () => {
+                    if (currentIndexLight > 0) {
+                        currentIndexLight--;
+                        window.showExistingImagelight(currentIndexLight);
+                    }
+                };
+            }
+
+            if (nextBtnLight) {
+                nextBtnLight.onclick = () => {
+                    if (currentIndexLight < post.image_urls.length - 1) {
+                        currentIndexLight++;
+                        window.showExistingImagelight(currentIndexLight);
+                    }
+                };
+            }
+
+            if (prevBtnDark) {
+                prevBtnDark.onclick = () => {
+                    if (currentIndexDark > 0) {
+                        currentIndexDark--;
+                        window.showExistingImagedark(currentIndexDark);
+                    }
+                };
+            }
+
+            if (nextBtnDark) {
+                nextBtnDark.onclick = () => {
+                    if (currentIndexDark < post.image_urls.length - 1) {
+                        currentIndexDark++;
+                        window.showExistingImagedark(currentIndexDark);
+                    }
+                };
+            }
+        }, 100);
 
         document.getElementById('previewModal').style.display = 'flex';
     }
@@ -781,7 +860,7 @@
             if (hasImages && hasHeadline && hasDescription) {
                 imgH = Math.round(previewHeight * 0.5);
                 headlineH = Math.round(previewHeight * 0.12);
-                descH = Math.round(previewHeight * 0.18);
+                descH = Math.round(previewHeight * 0.25); // Increased for scrollable text
             } else if (hasImages && hasHeadline && !hasDescription) {
                 imgH = Math.round(previewHeight * 0.7);
                 headlineH = Math.round(previewHeight * 0.10);
@@ -793,16 +872,16 @@
             } else {
                 imgH = 0;
                 headlineH = hasHeadline ? Math.round(previewHeight * 0.12) : 0;
-                descH = hasDescription ? Math.round(previewHeight * 0.18) : 0;
+                descH = hasDescription ? Math.round(previewHeight * 0.35) : 0; // More space for text-only
             }
 
-            // Handle image source (File object vs URL string)
-            let imageUrl = '';
+            // Create image array for navigation
+            let imageArray = [];
             if (hasImages) {
                 if (typeof images[0] === 'string') {
-                    imageUrl = images[0]; // Existing URL
+                    imageArray = images; // Existing URLs
                 } else {
-                    imageUrl = URL.createObjectURL(images[0]); // New file
+                    imageArray = images.map(file => URL.createObjectURL(file)); // New files
                 }
             }
 
@@ -817,7 +896,16 @@
                 <!-- News Card -->
                 <div style="background: ${cardColor}; height: ${previewHeight - 44}px; display: flex; flex-direction: column;">
                     ${hasImages ? `
-                    <div style="height: ${imgH}px; background: url('${imageUrl}') center/cover; flex-shrink: 0;"></div>
+                    <div style="height: ${imgH}px; position: relative; flex-shrink: 0; overflow: hidden;">
+                        <img id="editImg${mode}" src="${imageArray[0]}" style="width: 100%; height: 100%; object-fit: cover;">
+                        ${imageArray.length > 1 ? `
+                        <button id="prevEdit${mode}" style="position: absolute; top: 50%; left: 8px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 24px; height: 24px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">‹</button>
+                        <button id="nextEdit${mode}" style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 24px; height: 24px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">›</button>
+                        <div id="dotsEdit${mode}" style="position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;">
+                            ${imageArray.map((_, i) => `<span style="display: inline-block; width: 6px; height: 6px; margin: 0 2px; border-radius: 50%; background: ${i === 0 ? '#fff' : '#bbb'}; cursor: pointer;" onclick="showEditImage${mode}(${i})"></span>`).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
                     ` : ''}
                     
                     ${hasHeadline ? `
@@ -829,8 +917,8 @@
                     ` : ''}
                     
                     ${hasDescription ? `
-                    <div style="height: ${descH}px; padding: 0 16px; flex-shrink: 0; overflow: hidden;">
-                        <div style="color: ${descColor}; font-size: 14px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: ${Math.floor(descH / 20)}; -webkit-box-orient: vertical; overflow: hidden;">
+                    <div style="height: ${descH}px; padding: 8px 16px; flex-shrink: 0; overflow-y: auto;">
+                        <div style="color: ${descColor}; font-size: 14px; line-height: 1.4;">
                             ${description}
                         </div>
                     </div>
@@ -862,6 +950,86 @@
 
         // Make the render function available globally for the buttons
         window.renderEditPreview = renderEditPreview;
+
+        // Add image navigation functions for edit preview
+        window.showEditImagelight = function(index) {
+            const img = document.getElementById('editImglight');
+            const dots = document.querySelectorAll('#dotsEditlight span');
+            const imageArray = editSelectedFiles.length > 0 ? 
+                editSelectedFiles.map(file => URL.createObjectURL(file)) : 
+                (originalPost && originalPost.image_urls ? originalPost.image_urls : []);
+            
+            if (img && imageArray[index]) {
+                img.src = imageArray[index];
+                dots.forEach((dot, i) => {
+                    dot.style.background = i === index ? '#fff' : '#bbb';
+                });
+            }
+        };
+
+        window.showEditImagedark = function(index) {
+            const img = document.getElementById('editImgdark');
+            const dots = document.querySelectorAll('#dotsEditdark span');
+            const imageArray = editSelectedFiles.length > 0 ? 
+                editSelectedFiles.map(file => URL.createObjectURL(file)) : 
+                (originalPost && originalPost.image_urls ? originalPost.image_urls : []);
+            
+            if (img && imageArray[index]) {
+                img.src = imageArray[index];
+                dots.forEach((dot, i) => {
+                    dot.style.background = i === index ? '#fff' : '#bbb';
+                });
+            }
+        };
+
+        // Setup navigation after modal content is ready
+        setTimeout(() => {
+            let currentIndexLight = 0;
+            let currentIndexDark = 0;
+            const imageArray = editSelectedFiles.length > 0 ? editSelectedFiles : 
+                (originalPost && originalPost.image_urls ? originalPost.image_urls : []);
+
+            const prevBtnLight = document.getElementById('prevEditlight');
+            const nextBtnLight = document.getElementById('nextEditlight');
+            const prevBtnDark = document.getElementById('prevEditdark');
+            const nextBtnDark = document.getElementById('nextEditdark');
+
+            if (prevBtnLight) {
+                prevBtnLight.onclick = () => {
+                    if (currentIndexLight > 0) {
+                        currentIndexLight--;
+                        window.showEditImagelight(currentIndexLight);
+                    }
+                };
+            }
+
+            if (nextBtnLight) {
+                nextBtnLight.onclick = () => {
+                    if (currentIndexLight < imageArray.length - 1) {
+                        currentIndexLight++;
+                        window.showEditImagelight(currentIndexLight);
+                    }
+                };
+            }
+
+            if (prevBtnDark) {
+                prevBtnDark.onclick = () => {
+                    if (currentIndexDark > 0) {
+                        currentIndexDark--;
+                        window.showEditImagedark(currentIndexDark);
+                    }
+                };
+            }
+
+            if (nextBtnDark) {
+                nextBtnDark.onclick = () => {
+                    if (currentIndexDark < imageArray.length - 1) {
+                        currentIndexDark++;
+                        window.showEditImagedark(currentIndexDark);
+                    }
+                };
+            }
+        }, 100);
 
         // Set higher z-index to appear above edit modal
         const previewModal = document.getElementById('previewModal');
