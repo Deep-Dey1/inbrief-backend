@@ -863,7 +863,10 @@
         // Make the render function available globally for the buttons
         window.renderEditPreview = renderEditPreview;
 
-        document.getElementById('previewModal').style.display = 'flex';
+        // Set higher z-index to appear above edit modal
+        const previewModal = document.getElementById('previewModal');
+        previewModal.style.zIndex = '1001';
+        previewModal.style.display = 'flex';
     }
 
     document.getElementById('editForm').onsubmit = async function(e) {
@@ -976,7 +979,10 @@
     };
 
     function closePreviewModal() {
-        document.getElementById('previewModal').style.display = 'none';
+        const previewModal = document.getElementById('previewModal');
+        previewModal.style.display = 'none';
+        // Reset z-index to default
+        previewModal.style.zIndex = '1000';
     }
 
     function getPreviewDate() {
