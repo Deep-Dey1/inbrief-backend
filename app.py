@@ -73,8 +73,35 @@ def format_ist_time(dt=None):
 # Post categories
 POST_CATEGORIES = ['Finance', 'Healthcare', 'Achievement', 'Notice', 'Urgent']
 
-# In-memory storage for demo (replace with DB in production)
-news_posts = []
+# Persistent storage using JSON file
+POSTS_FILE = 'posts_data.json'
+
+def load_posts():
+    """Load posts from JSON file"""
+    try:
+        if os.path.exists(POSTS_FILE):
+            with open(POSTS_FILE, 'r', encoding='utf-8') as f:
+                posts = json.load(f)
+                logger.info(f"Loaded {len(posts)} posts from storage")
+                return posts
+        else:
+            logger.info("No existing posts file found, starting with empty list")
+            return []
+    except Exception as e:
+        logger.error(f"Error loading posts: {e}")
+        return []
+
+def save_posts(posts):
+    """Save posts to JSON file"""
+    try:
+        with open(POSTS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(posts, f, ensure_ascii=False, indent=2)
+        logger.info(f"Saved {len(posts)} posts to storage")
+    except Exception as e:
+        logger.error(f"Error saving posts: {e}")
+
+# Load existing posts on startup
+news_posts = load_posts()
 
 def generate_post_id():
     return str(uuid.uuid4())
@@ -283,6 +310,7 @@ def add_news():
         'author': session.get('employee_name')
     }
     news_posts.insert(0, news_item)
+    save_posts(news_posts)  # Save to file after adding
     
     logger.info(f"Post created successfully: {post_id}")
     
@@ -359,6 +387,7 @@ def edit_news(post_id):
                 'author': post['author']
             }
             
+            save_posts(news_posts)  # Save to file after editing
             return jsonify({'success': True, 'item': clean_post}), 200
             
     return jsonify({'error': 'Post not found'}), 404
@@ -385,6 +414,7 @@ def delete_news(post_id):
                         os.remove(file_path)
             
             news_posts.pop(i)
+            save_posts(news_posts)  # Save to file after deletion
             return jsonify({'success': True}), 200
     return jsonify({'error': 'Post not found'}), 404
 
