@@ -67,9 +67,9 @@ def generate_post_id():
     return str(uuid.uuid4())
 
 def is_post_editable(post_date):
-    """Check if post is within 2 hour edit window"""
+    """Check if post is within 24 hour edit window"""
     post_time = datetime.strptime(post_date, '%Y-%m-%d %H:%M:%S')
-    return datetime.now() - post_time <= timedelta(hours=2)
+    return datetime.now() - post_time <= timedelta(hours=24)
 
 def fallback_image_upload(images):
     """Fallback image upload to local storage if Cloudinary fails"""
@@ -289,9 +289,9 @@ def add_news():
 def edit_news(post_id):
     for post in news_posts:
         if post['id'] == post_id:
-            # Check if post is older than 2 hours
+            # Check if post is older than 24 hours
             if not is_post_editable(post['date']):
-                return jsonify({'error': 'Posts can only be edited within 2 hours of creation'}), 403
+                return jsonify({'error': 'Posts can only be edited within 24 hours of creation'}), 403
                 
             headline = request.form.get('headline', '')
             description = request.form.get('description', '')
