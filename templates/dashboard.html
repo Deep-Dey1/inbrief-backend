@@ -703,7 +703,7 @@
                         <button id="prevExisting${mode}" style="position: absolute; top: 50%; left: 8px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 24px; height: 24px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">‹</button>
                         <button id="nextExisting${mode}" style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 24px; height: 24px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">›</button>
                         <div id="dotsExisting${mode}" style="position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;">
-                            ${post.image_urls.map((_, i) => `<span style="display: inline-block; width: 6px; height: 6px; margin: 0 2px; border-radius: 50%; background: ${i === 0 ? '#fff' : '#bbb'}; cursor: pointer;" onclick="showExistingImage${mode}(${i})"></span>`).join('')}
+                            ${post.image_urls.map((_, i) => `<span style="display: inline-block; width: 6px; height: 6px; margin: 0 2px; border-radius: 50%; background: ${i === 0 ? '#fff' : '#bbb'}; cursor: pointer;" data-mode="${mode}" data-index="${i}"></span>`).join('')}
                         </div>
                         ` : ''}
                     </div>
@@ -777,36 +777,57 @@
 
         // Setup navigation after modal content is ready
         setTimeout(() => {
-            let currentIndexLight = 0;
-            let currentIndexDark = 0;
-
             // Setup navigation for both light and dark modes
             function setupNavigation(mode) {
                 const prevBtn = document.getElementById(`prevExisting${mode}`);
                 const nextBtn = document.getElementById(`nextExisting${mode}`);
+                const dots = document.querySelectorAll(`#dotsExisting${mode} span`);
                 
-                if (prevBtn && nextBtn) {
+                if (prevBtn && nextBtn && post.image_urls && post.image_urls.length > 1) {
                     let currentIndex = 0;
                     
-                    prevBtn.onclick = () => {
+                    // Function to update image and dots
+                    function updateImage(index) {
+                        const img = document.getElementById(`existingImg${mode}`);
+                        if (img && post.image_urls[index]) {
+                            img.src = post.image_urls[index];
+                            dots.forEach((dot, i) => {
+                                dot.style.background = i === index ? '#fff' : '#bbb';
+                            });
+                            currentIndex = index;
+                        }
+                    }
+                    
+                    prevBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         if (currentIndex > 0) {
-                            currentIndex--;
-                            window[`showExistingImage${mode}`](currentIndex);
+                            updateImage(currentIndex - 1);
                         }
                     };
 
-                    nextBtn.onclick = () => {
+                    nextBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         if (currentIndex < post.image_urls.length - 1) {
-                            currentIndex++;
-                            window[`showExistingImage${mode}`](currentIndex);
+                            updateImage(currentIndex + 1);
                         }
                     };
+                    
+                    // Setup dot click handlers
+                    dots.forEach((dot, index) => {
+                        dot.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateImage(index);
+                        };
+                    });
                 }
             }
 
             setupNavigation('light');
             setupNavigation('dark');
-        }, 100);
+        }, 200);
 
         document.getElementById('previewModal').style.display = 'flex';
     }
@@ -888,7 +909,7 @@
                         <button id="prevEdit${mode}" style="position: absolute; top: 50%; left: 8px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 24px; height: 24px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">‹</button>
                         <button id="nextEdit${mode}" style="position: absolute; top: 50%; right: 8px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 24px; height: 24px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">›</button>
                         <div id="dotsEdit${mode}" style="position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;">
-                            ${imageArray.map((_, i) => `<span style="display: inline-block; width: 6px; height: 6px; margin: 0 2px; border-radius: 50%; background: ${i === 0 ? '#fff' : '#bbb'}; cursor: pointer;" onclick="showEditImage${mode}(${i})"></span>`).join('')}
+                            ${imageArray.map((_, i) => `<span style="display: inline-block; width: 6px; height: 6px; margin: 0 2px; border-radius: 50%; background: ${i === 0 ? '#fff' : '#bbb'}; cursor: pointer;" data-mode="${mode}" data-index="${i}"></span>`).join('')}
                         </div>
                         ` : ''}
                     </div>
@@ -977,29 +998,61 @@
             function setupEditNavigation(mode) {
                 const prevBtn = document.getElementById(`prevEdit${mode}`);
                 const nextBtn = document.getElementById(`nextEdit${mode}`);
+                const dots = document.querySelectorAll(`#dotsEdit${mode} span`);
                 
-                if (prevBtn && nextBtn) {
+                if (prevBtn && nextBtn && imageArray.length > 1) {
                     let currentIndex = 0;
                     
-                    prevBtn.onclick = () => {
+                    // Function to update image and dots
+                    function updateImage(index) {
+                        const img = document.getElementById(`editImg${mode}`);
+                        let imageSrc;
+                        
+                        if (editSelectedFiles.length > 0) {
+                            imageSrc = URL.createObjectURL(editSelectedFiles[index]);
+                        } else if (originalPost && originalPost.image_urls) {
+                            imageSrc = originalPost.image_urls[index];
+                        }
+                        
+                        if (img && imageSrc) {
+                            img.src = imageSrc;
+                            dots.forEach((dot, i) => {
+                                dot.style.background = i === index ? '#fff' : '#bbb';
+                            });
+                            currentIndex = index;
+                        }
+                    }
+                    
+                    prevBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         if (currentIndex > 0) {
-                            currentIndex--;
-                            window[`showEditImage${mode}`](currentIndex);
+                            updateImage(currentIndex - 1);
                         }
                     };
 
-                    nextBtn.onclick = () => {
+                    nextBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         if (currentIndex < imageArray.length - 1) {
-                            currentIndex++;
-                            window[`showEditImage${mode}`](currentIndex);
+                            updateImage(currentIndex + 1);
                         }
                     };
+                    
+                    // Setup dot click handlers
+                    dots.forEach((dot, index) => {
+                        dot.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateImage(index);
+                        };
+                    });
                 }
             }
 
             setupEditNavigation('light');
             setupEditNavigation('dark');
-        }, 100);
+        }, 200);
 
         // Set higher z-index to appear above edit modal
         const previewModal = document.getElementById('previewModal');
