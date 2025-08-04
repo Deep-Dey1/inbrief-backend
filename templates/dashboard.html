@@ -710,8 +710,8 @@
                     ` : ''}
                     
                     ${hasHeadline ? `
-                    <div style="height: ${headlineH}px; padding: 8px 16px; display: flex; align-items: center; flex-shrink: 0; overflow: hidden;">
-                        <div style="color: ${headlineColor}; font-size: 16px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <div style="height: ${headlineH}px; padding: 8px 16px; display: flex; align-items: center; flex-shrink: 0; overflow-x: auto;">
+                        <div style="color: ${headlineColor}; font-size: 16px; font-weight: bold; white-space: nowrap;">
                             ${post.headline}
                         </div>
                     </div>
@@ -780,46 +780,32 @@
             let currentIndexLight = 0;
             let currentIndexDark = 0;
 
-            const prevBtnLight = document.getElementById('prevExistinglight');
-            const nextBtnLight = document.getElementById('nextExistinglight');
-            const prevBtnDark = document.getElementById('prevExistingdark');
-            const nextBtnDark = document.getElementById('nextExistingdark');
+            // Setup navigation for both light and dark modes
+            function setupNavigation(mode) {
+                const prevBtn = document.getElementById(`prevExisting${mode}`);
+                const nextBtn = document.getElementById(`nextExisting${mode}`);
+                
+                if (prevBtn && nextBtn) {
+                    let currentIndex = 0;
+                    
+                    prevBtn.onclick = () => {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            window[`showExistingImage${mode}`](currentIndex);
+                        }
+                    };
 
-            if (prevBtnLight) {
-                prevBtnLight.onclick = () => {
-                    if (currentIndexLight > 0) {
-                        currentIndexLight--;
-                        window.showExistingImagelight(currentIndexLight);
-                    }
-                };
+                    nextBtn.onclick = () => {
+                        if (currentIndex < post.image_urls.length - 1) {
+                            currentIndex++;
+                            window[`showExistingImage${mode}`](currentIndex);
+                        }
+                    };
+                }
             }
 
-            if (nextBtnLight) {
-                nextBtnLight.onclick = () => {
-                    if (currentIndexLight < post.image_urls.length - 1) {
-                        currentIndexLight++;
-                        window.showExistingImagelight(currentIndexLight);
-                    }
-                };
-            }
-
-            if (prevBtnDark) {
-                prevBtnDark.onclick = () => {
-                    if (currentIndexDark > 0) {
-                        currentIndexDark--;
-                        window.showExistingImagedark(currentIndexDark);
-                    }
-                };
-            }
-
-            if (nextBtnDark) {
-                nextBtnDark.onclick = () => {
-                    if (currentIndexDark < post.image_urls.length - 1) {
-                        currentIndexDark++;
-                        window.showExistingImagedark(currentIndexDark);
-                    }
-                };
-            }
+            setupNavigation('light');
+            setupNavigation('dark');
         }, 100);
 
         document.getElementById('previewModal').style.display = 'flex';
@@ -909,8 +895,8 @@
                     ` : ''}
                     
                     ${hasHeadline ? `
-                    <div style="height: ${headlineH}px; padding: 8px 16px; display: flex; align-items: center; flex-shrink: 0; overflow: hidden;">
-                        <div style="color: ${headlineColor}; font-size: 16px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <div style="height: ${headlineH}px; padding: 8px 16px; display: flex; align-items: center; flex-shrink: 0; overflow-x: auto;">
+                        <div style="color: ${headlineColor}; font-size: 16px; font-weight: bold; white-space: nowrap;">
                             ${headline}
                         </div>
                     </div>
@@ -984,51 +970,35 @@
 
         // Setup navigation after modal content is ready
         setTimeout(() => {
-            let currentIndexLight = 0;
-            let currentIndexDark = 0;
             const imageArray = editSelectedFiles.length > 0 ? editSelectedFiles : 
                 (originalPost && originalPost.image_urls ? originalPost.image_urls : []);
 
-            const prevBtnLight = document.getElementById('prevEditlight');
-            const nextBtnLight = document.getElementById('nextEditlight');
-            const prevBtnDark = document.getElementById('prevEditdark');
-            const nextBtnDark = document.getElementById('nextEditdark');
+            // Setup navigation for both light and dark modes
+            function setupEditNavigation(mode) {
+                const prevBtn = document.getElementById(`prevEdit${mode}`);
+                const nextBtn = document.getElementById(`nextEdit${mode}`);
+                
+                if (prevBtn && nextBtn) {
+                    let currentIndex = 0;
+                    
+                    prevBtn.onclick = () => {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            window[`showEditImage${mode}`](currentIndex);
+                        }
+                    };
 
-            if (prevBtnLight) {
-                prevBtnLight.onclick = () => {
-                    if (currentIndexLight > 0) {
-                        currentIndexLight--;
-                        window.showEditImagelight(currentIndexLight);
-                    }
-                };
+                    nextBtn.onclick = () => {
+                        if (currentIndex < imageArray.length - 1) {
+                            currentIndex++;
+                            window[`showEditImage${mode}`](currentIndex);
+                        }
+                    };
+                }
             }
 
-            if (nextBtnLight) {
-                nextBtnLight.onclick = () => {
-                    if (currentIndexLight < imageArray.length - 1) {
-                        currentIndexLight++;
-                        window.showEditImagelight(currentIndexLight);
-                    }
-                };
-            }
-
-            if (prevBtnDark) {
-                prevBtnDark.onclick = () => {
-                    if (currentIndexDark > 0) {
-                        currentIndexDark--;
-                        window.showEditImagedark(currentIndexDark);
-                    }
-                };
-            }
-
-            if (nextBtnDark) {
-                nextBtnDark.onclick = () => {
-                    if (currentIndexDark < imageArray.length - 1) {
-                        currentIndexDark++;
-                        window.showEditImagedark(currentIndexDark);
-                    }
-                };
-            }
+            setupEditNavigation('light');
+            setupEditNavigation('dark');
         }, 100);
 
         // Set higher z-index to appear above edit modal
