@@ -1099,7 +1099,24 @@
     }
 
     document.getElementById('showPreviewBtn').onclick = function() {
-      // Render previews
+      // First restore the original modal structure for new post preview
+      const modalContent = document.getElementById('previewModalContent');
+      modalContent.innerHTML = `
+        <span class="close-btn" onclick="closePreviewModal()">×</span>
+        <h2 style="text-align:center;">Post Preview</h2>
+        <div id="previewScaleWrap" style="display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; align-items: flex-start;">
+            <div>
+                <div style="text-align:center; margin-bottom:8px; font-weight:600;">Light Mode</div>
+                <div id="previewLight" class="previewScreen" style="width: 250px; height: 550px; border: 2px solid #bbb; border-radius: 32px; background: #E0F2F1; box-shadow: 0 4px 24px rgba(0,0,0,0.12); overflow: hidden; position: relative;"></div>
+            </div>
+            <div>
+                <div style="text-align:center; margin-bottom:8px; font-weight:600;">Dark Mode</div>
+                <div id="previewDark" class="previewScreen" style="width: 250px; height: 550px; border: 2px solid #222; border-radius: 32px; background: #1A1A1A; box-shadow: 0 4px 24px rgba(0,0,0,0.18); overflow: hidden; position: relative;"></div>
+            </div>
+        </div>
+      `;
+      
+      // Now render previews
       document.getElementById('previewLight').innerHTML = renderPreview('light');
       document.getElementById('previewDark').innerHTML = renderPreview('dark');
       setTimeout(() => {
