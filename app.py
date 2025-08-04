@@ -319,7 +319,7 @@ def edit_news(post_id):
                         CloudinaryService.delete_image(img_data['public_id'])
                 
                 # Upload new images
-                uploaded_images = CloudinaryService.upload_multiple_images(images, folder="inbrief_posts")
+                uploaded_images, failed_uploads = CloudinaryService.upload_multiple_images(images, folder="inbrief_posts")
                 new_image_data = []
                 for img in uploaded_images:
                     new_image_data.append({
