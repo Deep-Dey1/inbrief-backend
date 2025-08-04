@@ -668,22 +668,27 @@
             const hasHeadline = post.headline && post.headline.trim();
             const hasDescription = post.description && post.description.trim();
 
-            if (hasImages && hasHeadline && hasDescription) {
-                imgH = Math.round(previewHeight * 0.5);
-                headlineH = Math.round(previewHeight * 0.12);
-                descH = Math.round(previewHeight * 0.25); // Increased for scrollable text
-            } else if (hasImages && hasHeadline && !hasDescription) {
-                imgH = Math.round(previewHeight * 0.7);
-                headlineH = Math.round(previewHeight * 0.10);
-                descH = 0;
-            } else if (hasImages && !hasHeadline && !hasDescription) {
-                imgH = previewHeight - 44 - 32;
+            // Calculate dimensions based on post type to match actual app
+            if (hasImages && !hasHeadline && !hasDescription) {
+                // Image Only Post: 620px x 1080px ratio
+                imgH = previewHeight - 44 - 32; // Full height minus app bar and bottom row
                 headlineH = 0;
                 descH = 0;
+            } else if (hasImages && hasHeadline && !hasDescription) {
+                // Image with Headline: 620px x 980px ratio  
+                imgH = Math.round(previewHeight * 0.75); // More space for image
+                headlineH = Math.round(previewHeight * 0.08); // Smaller headline
+                descH = 0;
+            } else if (hasImages && hasHeadline && hasDescription) {
+                // Image with Headline and Description: 710px x 680px ratio
+                imgH = Math.round(previewHeight * 0.45); // Less space for image
+                headlineH = Math.round(previewHeight * 0.08);
+                descH = Math.round(previewHeight * 0.30); // More space for description
             } else {
+                // Text only posts
                 imgH = 0;
                 headlineH = hasHeadline ? Math.round(previewHeight * 0.12) : 0;
-                descH = hasDescription ? Math.round(previewHeight * 0.35) : 0; // More space for text-only
+                descH = hasDescription ? Math.round(previewHeight * 0.50) : 0;
             }
 
             return `
@@ -864,22 +869,27 @@
             const hasHeadline = headline && headline.trim();
             const hasDescription = description && description.trim();
 
-            if (hasImages && hasHeadline && hasDescription) {
-                imgH = Math.round(previewHeight * 0.5);
-                headlineH = Math.round(previewHeight * 0.12);
-                descH = Math.round(previewHeight * 0.25); // Increased for scrollable text
-            } else if (hasImages && hasHeadline && !hasDescription) {
-                imgH = Math.round(previewHeight * 0.7);
-                headlineH = Math.round(previewHeight * 0.10);
-                descH = 0;
-            } else if (hasImages && !hasHeadline && !hasDescription) {
-                imgH = previewHeight - 44 - 32;
+            // Calculate dimensions based on post type to match actual app
+            if (hasImages && !hasHeadline && !hasDescription) {
+                // Image Only Post: 620px x 1080px ratio
+                imgH = previewHeight - 44 - 32; // Full height minus app bar and bottom row
                 headlineH = 0;
                 descH = 0;
+            } else if (hasImages && hasHeadline && !hasDescription) {
+                // Image with Headline: 620px x 980px ratio  
+                imgH = Math.round(previewHeight * 0.75); // More space for image
+                headlineH = Math.round(previewHeight * 0.08); // Smaller headline
+                descH = 0;
+            } else if (hasImages && hasHeadline && hasDescription) {
+                // Image with Headline and Description: 710px x 680px ratio
+                imgH = Math.round(previewHeight * 0.45); // Less space for image
+                headlineH = Math.round(previewHeight * 0.08);
+                descH = Math.round(previewHeight * 0.30); // More space for description
             } else {
+                // Text only posts
                 imgH = 0;
                 headlineH = hasHeadline ? Math.round(previewHeight * 0.12) : 0;
-                descH = hasDescription ? Math.round(previewHeight * 0.35) : 0; // More space for text-only
+                descH = hasDescription ? Math.round(previewHeight * 0.50) : 0;
             }
 
             // Create image array for navigation
@@ -1210,22 +1220,28 @@
         // Dynamic heights
         const previewHeight = 550; // px
         let imgH = 0, headlineH = 0, descH = 0;
-        if (images.length > 0 && headline && description) {
-          imgH = Math.round(previewHeight * 0.5);
-          headlineH = Math.round(previewHeight * 0.12);
-          descH = Math.round(previewHeight * 0.18);
-        } else if (images.length > 0 && headline && !description) {
-          imgH = Math.round(previewHeight * 0.7);
-          headlineH = Math.round(previewHeight * 0.10);
-          descH = 0;
-        } else if (images.length > 0 && !headline && !description) {
+        
+        // Calculate dimensions based on post type to match actual app
+        if (images.length > 0 && !headline && !description) {
+          // Image Only Post: 620px x 1080px ratio
           imgH = previewHeight - 44 - 32; // appbar + bottom row
           headlineH = 0;
           descH = 0;
+        } else if (images.length > 0 && headline && !description) {
+          // Image with Headline: 620px x 980px ratio
+          imgH = Math.round(previewHeight * 0.75);
+          headlineH = Math.round(previewHeight * 0.08);
+          descH = 0;
+        } else if (images.length > 0 && headline && description) {
+          // Image with Headline and Description: 710px x 680px ratio
+          imgH = Math.round(previewHeight * 0.45);
+          headlineH = Math.round(previewHeight * 0.08);
+          descH = Math.round(previewHeight * 0.30);
         } else {
+          // Text only posts
           imgH = 0;
           headlineH = headline ? Math.round(previewHeight * 0.12) : 0;
-          descH = description ? Math.round(previewHeight * 0.18) : 0;
+          descH = description ? Math.round(previewHeight * 0.50) : 0;
         }
         return `
           <div style="display:flex;flex-direction:column;height:100%;width:100%;background:${bgColor};">

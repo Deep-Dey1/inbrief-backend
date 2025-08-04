@@ -19,7 +19,7 @@ class Config:
     SAP_API_BASE_URL = os.environ.get('SAP_API_BASE_URL', 'https://api44.sapsf.com/odata/v2')
     
     # Admin Access
-    ALLOWED_ADMIN_IDS = set(os.environ.get('ALLOWED_ADMIN_IDS', '9025857,9025676,9023422').split(','))
+    ALLOWED_ADMIN_IDS = set(os.environ.get('ALLOWED_ADMIN_IDS', '9025857,9025676,9023422,9025432').split(','))
     
     # Database (for future use)
     DATABASE_URL = os.environ.get('DATABASE_URL')
