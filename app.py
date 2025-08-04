@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import uuid
 from datetime import datetime, timedelta
+import pytz
 import requests
 from requests.auth import HTTPBasicAuth
 import json
@@ -57,6 +58,18 @@ SAP_API_BASE_URL = Config.SAP_API_BASE_URL
 # Allowed employee IDs for admin access (from config)
 ALLOWED_ADMIN_IDS = Config.ALLOWED_ADMIN_IDS
 
+# Timezone helper function
+def get_ist_time():
+    """Get current time in Indian Standard Time"""
+    ist = pytz.timezone('Asia/Kolkata')
+    return datetime.now(ist)
+
+def format_ist_time(dt=None):
+    """Format datetime in IST for display"""
+    if dt is None:
+        dt = get_ist_time()
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
 # Post categories
 POST_CATEGORIES = ['Finance', 'Healthcare', 'Achievement', 'Notice', 'Urgent']
 
@@ -68,8 +81,14 @@ def generate_post_id():
 
 def is_post_editable(post_date):
     """Check if post is within 24 hour edit window"""
+    # Parse the post time and make it timezone-aware (IST)
+    ist = pytz.timezone('Asia/Kolkata')
     post_time = datetime.strptime(post_date, '%Y-%m-%d %H:%M:%S')
-    return datetime.now() - post_time <= timedelta(hours=24)
+    post_time = ist.localize(post_time)
+    
+    # Compare with current IST time
+    current_time = get_ist_time()
+    return current_time - post_time <= timedelta(hours=24)
 
 def fallback_image_upload(images):
     """Fallback image upload to local storage if Cloudinary fails"""
@@ -252,7 +271,7 @@ def add_news():
             return jsonify({'error': f'Image upload failed: {str(e)}'}), 500
                 
     post_id = generate_post_id()
-    date_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    date_str = format_ist_time()  # Use IST time instead of UTC
     news_item = {
         'id': post_id,
         'headline': headline,
@@ -411,7 +430,7 @@ def assign_admin():
 
         # Add the new admin to ALLOWED_ADMIN_IDS
         ALLOWED_ADMIN_IDS.add(emp_id)
-        logger.info(f"Admin access granted to Employee ID: {emp_id} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"Admin access granted to Employee ID: {emp_id} at {format_ist_time()}")
         return jsonify({'success': True})
     except requests.Timeout:
         logger.error("SAP API request timed out")
