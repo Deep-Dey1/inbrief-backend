@@ -13,6 +13,7 @@ from logging.handlers import RotatingFileHandler
 import traceback
 from config import Config
 from cloudinary_service import CloudinaryService
+from models import db, NewsPost
 
 # Configure logging
 logging.basicConfig(
@@ -27,6 +28,14 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config.from_object(Config)
+
+# Initialize database
+db.init_app(app)
+
+# Create tables
+with app.app_context():
+    db.create_all()
+    logger.info("Database tables created successfully")
 
 # Configure CORS to allow requests from any origin
 CORS(app, resources={
@@ -73,35 +82,80 @@ def format_ist_time(dt=None):
 # Post categories
 POST_CATEGORIES = ['Finance', 'Healthcare', 'Achievement', 'Notice', 'Urgent']
 
-# Persistent storage using JSON file
-POSTS_FILE = 'posts_data.json'
-
+# Database operations replace JSON file operations
 def load_posts():
-    """Load posts from JSON file"""
+    """Load posts from database"""
     try:
-        if os.path.exists(POSTS_FILE):
-            with open(POSTS_FILE, 'r', encoding='utf-8') as f:
-                posts = json.load(f)
-                logger.info(f"Loaded {len(posts)} posts from storage")
-                return posts
-        else:
-            logger.info("No existing posts file found, starting with empty list")
-            return []
+        posts = NewsPost.query.order_by(NewsPost.created_at.desc()).all()
+        posts_data = [post.to_dict_with_image_data() for post in posts]
+        logger.info(f"Loaded {len(posts_data)} posts from database")
+        return posts_data
     except Exception as e:
-        logger.error(f"Error loading posts: {e}")
+        logger.error(f"Error loading posts from database: {e}")
         return []
 
-def save_posts(posts):
-    """Save posts to JSON file"""
+def save_posts(posts_data):
+    """Save posts to database (for compatibility with existing code)"""
     try:
-        with open(POSTS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(posts, f, ensure_ascii=False, indent=2)
-        logger.info(f"Saved {len(posts)} posts to storage")
+        # Clear existing posts and re-save all (not efficient but maintains compatibility)
+        NewsPost.query.delete()
+        
+        for post_data in posts_data:
+            post = NewsPost.from_dict(post_data)
+            db.session.add(post)
+        
+        db.session.commit()
+        logger.info(f"Saved {len(posts_data)} posts to database")
     except Exception as e:
-        logger.error(f"Error saving posts: {e}")
+        logger.error(f"Error saving posts to database: {e}")
+        db.session.rollback()
 
-# Load existing posts on startup
-news_posts = load_posts()
+def add_post_to_db(post_data):
+    """Add a single post to database"""
+    try:
+        post = NewsPost.from_dict(post_data)
+        db.session.add(post)
+        db.session.commit()
+        logger.info(f"Added post {post_data['id']} to database")
+        return True
+    except Exception as e:
+        logger.error(f"Error adding post to database: {e}")
+        db.session.rollback()
+        return False
+
+def update_post_in_db(post_id, post_data):
+    """Update a post in database"""
+    try:
+        post = NewsPost.query.get(post_id)
+        if post:
+            post.headline = post_data.get('headline', '')
+            post.description = post_data.get('description', '')
+            post.image_urls = json.dumps(post_data.get('image_urls', []))
+            post.image_data = json.dumps(post_data.get('image_data', []))
+            post.category = post_data.get('category')
+            db.session.commit()
+            logger.info(f"Updated post {post_id} in database")
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"Error updating post in database: {e}")
+        db.session.rollback()
+        return False
+
+def delete_post_from_db(post_id):
+    """Delete a post from database"""
+    try:
+        post = NewsPost.query.get(post_id)
+        if post:
+            db.session.delete(post)
+            db.session.commit()
+            logger.info(f"Deleted post {post_id} from database")
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"Error deleting post from database: {e}")
+        db.session.rollback()
+        return False
 
 def generate_post_id():
     return str(uuid.uuid4())
@@ -239,22 +293,14 @@ def dashboard():
 # List all posts (clean data for mobile app)
 @app.route('/api/news/all', methods=['GET'])
 def get_all_news():
-    # Return clean posts without internal data like public_ids
-    clean_posts = []
-    for post in news_posts:
-        clean_post = {
-            'id': post['id'],
-            'headline': post['headline'],
-            'description': post['description'],
-            'image_urls': post['image_urls'],
-            'date': post['date'],
-            'author': post.get('author', '')
-        }
-        clean_posts.append(clean_post)
-    
-    # Sort by date (descending)
-    clean_posts.sort(key=lambda x: x.get('date', ''), reverse=True)
-    return jsonify(clean_posts)
+    try:
+        # Get posts directly from database
+        posts = NewsPost.query.order_by(NewsPost.created_at.desc()).all()
+        clean_posts = [post.to_dict() for post in posts]
+        return jsonify(clean_posts)
+    except Exception as e:
+        logger.error(f"Error fetching posts: {e}")
+        return jsonify([]), 500
 
 # Add a new post with Cloudinary image upload and better error handling
 @app.route('/api/news', methods=['POST'])
@@ -309,114 +355,141 @@ def add_news():
         'category': category,
         'author': session.get('employee_name')
     }
-    news_posts.insert(0, news_item)
-    save_posts(news_posts)  # Save to file after adding
     
-    logger.info(f"Post created successfully: {post_id}")
-    
-    # Return clean data for mobile app (without public_ids)
-    clean_item = {
-        'id': news_item['id'],
-        'headline': news_item['headline'],
-        'description': news_item['description'],
-        'image_urls': news_item['image_urls'],
-        'date': news_item['date'],
-        'author': news_item['author']
-    }
-    
-    response_data = {'success': True, 'item': clean_item}
-    if upload_errors:
-        response_data['warnings'] = upload_errors
-    
-    return jsonify(response_data), 201
+    # Add to database instead of in-memory list
+    if add_post_to_db(news_item):
+        logger.info(f"Post created successfully: {post_id}")
+        
+        # Return clean data for mobile app (without public_ids)
+        clean_item = {
+            'id': news_item['id'],
+            'headline': news_item['headline'],
+            'description': news_item['description'],
+            'image_urls': news_item['image_urls'],
+            'date': news_item['date'],
+            'author': news_item['author']
+        }
+        
+        response_data = {'success': True, 'item': clean_item}
+        if upload_errors:
+            response_data['warnings'] = upload_errors
+        
+        return jsonify(response_data), 201
+    else:
+        return jsonify({'error': 'Failed to save post to database'}), 500
 
 # Edit a post by id with Cloudinary support
 @app.route('/api/news/edit/<post_id>', methods=['POST'])
 @login_required
 def edit_news(post_id):
-    for post in news_posts:
-        if post['id'] == post_id:
-            # Check if post is older than 24 hours
-            if not is_post_editable(post['date']):
-                return jsonify({'error': 'Posts can only be edited within 24 hours of creation'}), 403
-                
-            headline = request.form.get('headline', '')
-            description = request.form.get('description', '')
-            category = request.form.get('category')
-            images = request.files.getlist('images')
+    try:
+        # Get post from database
+        post = NewsPost.query.get(post_id)
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
             
-            # Allow empty headline but require at least one of: headline, description, or image
-            if not headline and not description and not images:
-                return jsonify({'error': 'Post must have at least a headline, description, or image.'}), 400
-                
-            if category and category not in POST_CATEGORIES:
-                return jsonify({'error': 'Invalid category'}), 400
-                
-            post['headline'] = headline
-            post['description'] = description
-            if category:
-                post['category'] = category
-                
-            # Handle new images
-            if images and len(images) > 0:
-                # Delete old images from Cloudinary
-                old_image_data = post.get('image_data', [])
-                for img_data in old_image_data:
-                    if 'public_id' in img_data:
-                        CloudinaryService.delete_image(img_data['public_id'])
-                
-                # Upload new images
-                uploaded_images, failed_uploads = CloudinaryService.upload_multiple_images(images, folder="inbrief_posts")
-                new_image_data = []
-                for img in uploaded_images:
-                    new_image_data.append({
-                        'url': img['url'],
-                        'public_id': img['public_id']
-                    })
-                
-                post['image_urls'] = [img['url'] for img in new_image_data]
-                post['image_data'] = new_image_data
-                
+        # Convert to dict for compatibility
+        post_data = post.to_dict_with_image_data()
+        
+        # Check if post is older than 24 hours
+        if not is_post_editable(post_data['date']):
+            return jsonify({'error': 'Posts can only be edited within 24 hours of creation'}), 403
+            
+        headline = request.form.get('headline', '')
+        description = request.form.get('description', '')
+        category = request.form.get('category')
+        images = request.files.getlist('images')
+        
+        # Allow empty headline but require at least one of: headline, description, or image
+        if not headline and not description and not images:
+            return jsonify({'error': 'Post must have at least a headline, description, or image.'}), 400
+            
+        if category and category not in POST_CATEGORIES:
+            return jsonify({'error': 'Invalid category'}), 400
+            
+        # Update post data
+        post_data['headline'] = headline
+        post_data['description'] = description
+        if category:
+            post_data['category'] = category
+            
+        # Handle new images
+        if images and len(images) > 0:
+            # Delete old images from Cloudinary
+            old_image_data = post_data.get('image_data', [])
+            for img_data in old_image_data:
+                if 'public_id' in img_data:
+                    CloudinaryService.delete_image(img_data['public_id'])
+            
+            # Upload new images
+            uploaded_images, failed_uploads = CloudinaryService.upload_multiple_images(images, folder="inbrief_posts")
+            new_image_data = []
+            for img in uploaded_images:
+                new_image_data.append({
+                    'url': img['url'],
+                    'public_id': img['public_id']
+                })
+            
+            post_data['image_urls'] = [img['url'] for img in new_image_data]
+            post_data['image_data'] = new_image_data
+            
+        # Update in database
+        if update_post_in_db(post_id, post_data):
             # Return clean data for response
             clean_post = {
-                'id': post['id'],
-                'headline': post['headline'],
-                'description': post['description'],
-                'image_urls': post['image_urls'],
-                'date': post['date'],
-                'author': post['author']
+                'id': post_data['id'],
+                'headline': post_data['headline'],
+                'description': post_data['description'],
+                'image_urls': post_data['image_urls'],
+                'date': post_data['date'],
+                'author': post_data['author']
             }
             
-            save_posts(news_posts)  # Save to file after editing
             return jsonify({'success': True, 'item': clean_post}), 200
+        else:
+            return jsonify({'error': 'Failed to update post in database'}), 500
             
-    return jsonify({'error': 'Post not found'}), 404
+    except Exception as e:
+        logger.error(f"Error editing post {post_id}: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 # Delete a post with Cloudinary cleanup
 @app.route('/api/news/delete/<post_id>', methods=['DELETE'])
 @login_required
 def delete_news(post_id):
-    for i, post in enumerate(news_posts):
-        if post['id'] == post_id:
-            # Remove images from Cloudinary
-            image_data = post.get('image_data', [])
-            for img_data in image_data:
-                if 'public_id' in img_data:
-                    CloudinaryService.delete_image(img_data['public_id'])
+    try:
+        # Get post from database
+        post = NewsPost.query.get(post_id)
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
             
-            # Also clean up legacy local images if they exist
-            image_urls = post.get('image_urls', [])
-            for url in image_urls:
-                if url and '/static/uploads/' in url:
-                    filename = url.split('/static/uploads/')[-1]
-                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-            
-            news_posts.pop(i)
-            save_posts(news_posts)  # Save to file after deletion
+        # Convert to dict to get image data
+        post_data = post.to_dict_with_image_data()
+        
+        # Remove images from Cloudinary
+        image_data = post_data.get('image_data', [])
+        for img_data in image_data:
+            if 'public_id' in img_data:
+                CloudinaryService.delete_image(img_data['public_id'])
+        
+        # Also clean up legacy local images if they exist
+        image_urls = post_data.get('image_urls', [])
+        for url in image_urls:
+            if url and '/static/uploads/' in url:
+                filename = url.split('/static/uploads/')[-1]
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+        
+        # Delete from database
+        if delete_post_from_db(post_id):
             return jsonify({'success': True}), 200
-    return jsonify({'error': 'Post not found'}), 404
+        else:
+            return jsonify({'error': 'Failed to delete post from database'}), 500
+            
+    except Exception as e:
+        logger.error(f"Error deleting post {post_id}: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/static/uploads/<filename>')
 def uploaded_file(filename):
@@ -472,6 +545,26 @@ def assign_admin():
         logger.error(f"Error assigning admin: {e}")
         logger.error(traceback.format_exc())
         return jsonify({'error': 'Internal server error'}), 500
+
+# Database management endpoint (for testing/migration)
+@app.route('/api/admin/db-info', methods=['GET'])
+@login_required
+def db_info():
+    try:
+        post_count = NewsPost.query.count()
+        return jsonify({
+            'success': True,
+            'database_connected': True,
+            'total_posts': post_count,
+            'message': f'Database is working! Found {post_count} posts.'
+        })
+    except Exception as e:
+        logger.error(f"Database info error: {e}")
+        return jsonify({
+            'success': False,
+            'database_connected': False,
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     # Use environment PORT for cloud deployment, default to 5000 for local
