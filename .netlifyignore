@@ -6,6 +6,10 @@ cloudinary_service.py
 simple_api.py
 requirements.txt
 
+# Ignore conflicting JavaScript function files
+netlify/functions/*.js
+*.js
+
 # Ignore Python version files (let Netlify use default)
 runtime.txt
 .python-version
