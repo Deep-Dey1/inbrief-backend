@@ -4,8 +4,7 @@
   publish = "."
 
 [functions]
-  # Python runtime for serverless functions
-  runtime = "python3.9"
+  # Netlify will auto-detect Python functions
 
 [[redirects]]
   from = "/api/*"
@@ -16,6 +15,3 @@
   from = "/"
   to = "/.netlify/functions/app"
   status = 200
-
-[build.environment]
-  PYTHON_VERSION = "3.9"
