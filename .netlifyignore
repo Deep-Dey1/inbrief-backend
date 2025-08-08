@@ -1,0 +1,29 @@
+# Ignore old Railway Flask app files
+app.py
+models.py
+config.py
+cloudinary_service.py
+simple_api.py
+requirements.txt
+
+# Ignore Python cache and logs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+app.log*
+*.log
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore environment files (use Netlify environment variables instead)
+.env
+.env.local
+
+# Ignore build artifacts
+build/
+dist/

@@ -1,17 +1,19 @@
 import json
 import psycopg2
+import os
 from urllib.parse import parse_qs
 
-# Database configuration
-DATABASE_URL = "postgresql://postgres.kthazjqojhsrlpvgnvlt:QeRWafYc1bXhtSzD@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
+# Supabase Database configuration - Session Pooler (recommended for serverless)
+# Database: inbrief-database, Password: InBrief2025!
+DATABASE_URL = os.environ.get('SUPABASE_DATABASE_URL', 'postgresql://postgres.iwzmixjdzjdukkrkwyxh:InBrief2025!@aws-0-ap-south-1.pooler.supabase.com:5432/postgres')
 
 def get_db_connection():
-    """Get database connection"""
+    """Get database connection to Supabase"""
     try:
         conn = psycopg2.connect(DATABASE_URL)
         return conn
     except Exception as e:
-        print(f"Database connection failed: {e}")
+        print(f"Supabase connection failed: {e}")
         return None
 
 def handler(event, context):
@@ -58,9 +60,10 @@ def handler(event, context):
                 'headers': headers,
                 'body': json.dumps({
                     "status": "healthy",
-                    "database": "connected",
+                    "database": "supabase_connected",
                     "total_posts": count,
-                    "message": "InBrief API - Netlify Serverless"
+                    "message": "InBrief API - Netlify + Supabase",
+                    "timestamp": "2025-08-08"
                 })
             }
         
