@@ -6,6 +6,11 @@ cloudinary_service.py
 simple_api.py
 requirements.txt
 
+# Ignore Python version files (let Netlify use default)
+runtime.txt
+.python-version
+.mise.toml
+
 # Ignore Python cache and logs
 __pycache__/
 *.pyc
